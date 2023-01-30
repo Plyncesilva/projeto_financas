@@ -158,7 +158,7 @@ def add_animador(name, NIB, nucleo):
 
 # Command logic controllers
 
-def view(command) -> str:
+def view() -> str:
 
     global wipe_screen
     
@@ -172,61 +172,6 @@ def view(command) -> str:
         return view_line(curr_pasta, curr_activity, curr_line)
     else:
         pass # never gets here 
-
-    # if op == '-p':
-        # if len(command) != 3:
-            # wipe_screen = False
-            # return Message.INVALID_OPERAND
-        # try:
-            # return view_pasta(command[2])
-        # except Exception as e:
-            # wipe_screen = False
-            # return e
-    # elif op == '-a':
-        # if len(command) != 4:
-            # wipe_screen = False
-            # return Message.INVALID_OPERAND
-        # try:
-            # return view_activity(command[2], command[3])
-        # except Exception as e:
-            # wipe_screen = False
-            # return e
-    # elif op == '-l':
-        # if len(command) != 5:
-            # wipe_screen = False
-            # return Message.INVALID_OPERAND
-        # try:
-            # return view_line(command[2], command[3], command[4])
-        # except Exception as e:
-            # wipe_screen = False
-            # return e
-    # elif op == '-ani':
-        # if len(command) != 3:
-            # wipe_screen = False
-            # return Message.INVALID_OPERAND
-        # try:
-            # return view_animador(command[2])
-        # except Exception as e:
-            # wipe_screen = False
-            # return e
-    # elif op == '-P':
-        # if len(command) != 2:
-            # wipe_screen = False
-            # return Message.INVALID_OPERAND
-        # return view_all_pastas()
-    # elif op == '-A':
-        # if len(command) != 2:
-            # wipe_screen = False
-            # return Message.INVALID_OPERAND
-        # return view_all_animadores()
-    # elif op == '-all':
-        # if len(command) != 2:
-            # wipe_screen = False
-            # return Message.INVALID_OPERAND
-        # return view_all_pastas() + view_all_animadores()
-    # else:
-        # wipe_screen = False
-        # return Message.INVALID_OPERAND
 
 def update(command) -> str:
 
@@ -556,6 +501,7 @@ if __name__ == "__main__":
     # interactive menu
     while True:
         os.system('clear') # this is linux dependent!
+        print(view())
         if not wipe_screen:
             print(prev_user_info)
             wipe_screen = True
