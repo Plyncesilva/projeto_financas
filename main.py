@@ -8,6 +8,7 @@ import os
 
 # TODO
 # Melhorar eficiencia estrutural do codigo, muita coisa repetida diria
+# introduzir animadores features
 # Handle different pasta types
 # Ability to add line types?
 # Auto complete commands
@@ -160,8 +161,6 @@ def add_animador(name, NIB, nucleo):
 
 def view() -> str:
 
-    global wipe_screen
-    
     if curr_dir == DIR.GLOBAL:
         return view_all_pastas() + view_all_animadores()
     elif curr_dir == DIR.PASTA:
@@ -187,7 +186,7 @@ def update(command) -> str:
     # update animador nibL set -nib name new_nib
     # update animador nucleo: set -n name new_nucleo
 
-    global wipe_screen
+    
 
     if len(command) <= 1:
         return Message.UPDATE_COMMAND_USAGE
@@ -196,203 +195,127 @@ def update(command) -> str:
 
     if op == '-p':
         if len(command) != 4:
-            wipe_screen = False
+            
             return Message.INVALID_OPERAND
         try:
             update_pasta_name(command[2], command[3])
         except Exception as e:
-            wipe_screen = False
+            
             return e
         return view_pasta(command[3])
     elif op == '-pt':
         if len(command) != 4:
-            wipe_screen = False
+            
             return Message.INVALID_OPERAND
         try:
             update_pasta_type(command[2], command[3])
         except Exception as e:
-            wipe_screen = False
+            
             return e
         return view_pasta(command[2])
     elif op == '-a':
         if len(command) != 5:
-            wipe_screen = False
+            
             return Message.INVALID_OPERAND
         try:
             update_activity_name(command[2], command[3], command[4])
         except Exception as e:
-            wipe_screen = False
+            
             return e
         return view_pasta(command[2])
     elif op == '-l':
         if len(command) != 6:
-            wipe_screen = False
+            
             return Message.INVALID_OPERAND
         try:
             update_line_type(command[2], command[3], command[4], command[5])
         except Exception as e:
-            wipe_screen = False
+            
             return e
         return view_pasta(command[2])
     elif op == '-lb':
         if len(command) != 6:
-            wipe_screen = False
+            
             return Message.INVALID_OPERAND
         try:
             update_line_budget(command[2], command[3], command[4], command[5])
         except Exception as e:
-            wipe_screen = False
+            
             return e
         return view_pasta(command[2])
     elif op == '-ani':
         if len(command) != 4:
-            wipe_screen = False
+            
             return Message.INVALID_OPERAND
         try:
             update_animador_name(command[2], command[3])
         except Exception as e:
-            wipe_screen = False
+            
             return e
         return view_animador(command[2])
     elif op == '-nib':
         if len(command) != 4:
-            wipe_screen = False
+            
             return Message.INVALID_OPERAND
         try:
             update_animador_nib(command[2], command[3])
         except Exception as e:
-            wipe_screen = False
+            
             return e
         return view_animador(command[2])
     elif op == '-nuc':
         if len(command) != 4:
-            wipe_screen = False
+            
             return Message.INVALID_OPERAND
         try:
             update_animador_nucleo(command[2], command[3])
         except Exception as e:
-            wipe_screen = False
+            
             return e
         return view_animador(command[2])
     else:
-        wipe_screen = False
+        
         return Message.INVALID_OPERAND
         
-def add(command) -> str:
-
-    global wipe_screen
-    
+def add(command):
     l = len(command)
 
     if l <= 1:
         return Message.ADD_COMMAND_USAGE
 
-    op = command[1]
+    request = command[1]
 
-    if op == "-p":
-        if l != 4:
-            wipe_screen = False
-            return Message.INVALID_OPERAND
-        try:
-            add_pasta(command[2], command[3])
-        except (TypeError, Exception) as e:
-            wipe_screen = False
-            return e
-        return view_pasta(command[2])
-    elif op == "-a":
-        if l != 4:
-            wipe_screen = False
-            return Message.INVALID_OPERAND
-        try:
-            add_activity(command[2], command[3])
-        except (TypeError, Exception) as e:
-            wipe_screen = False
-            return e
-        return view_pasta(command[2])
-    elif op == "-l":
-        if l != 6:
-            return Message.INVALID_OPERAND
-        try:
-            add_line_type(command[2], command[3], command[4], command[5])
-        except (Exception,TypeError) as e:
-            wipe_screen = False
-            return e
-        return view_pasta(command[2])
-    elif op == "-ani":
-        if l != 5:
-            wipe_screen = False
-            return Message.INVALID_OPERAND
-        try:
-            add_animador(command[2], command[3], command[4])
-        except (Exception, TypeError) as e:
-            wipe_screen = False
-            return e
-        return view_animador(command[2])
+    if curr_dir == DIR.GLOBAL:
+        if l != 3:
+            raise Exception(Message.ADD_COMMAND_USAGE)
+        add_pasta(request, command[2])
+    elif curr_dir == DIR.PASTA:
+        if l != 2:
+            raise Exception(Message.ADD_COMMAND_USAGE)
+        add_activity(curr_pasta, request)
+    elif curr_dir == DIR.ACTIVITY:
+        if l != 3:
+            raise Exception(Message.ADD_COMMAND_USAGE)
+        add_line_type(curr_pasta, curr_activity, request, command[2])
     else:
-        wipe_screen = False
-        return Message.INVALID_OPERAND
+        pass # never gets here
 
-def remove(command) -> str:
-
-    global wipe_screen
-
+def remove(command):
     l = len(command)
 
-    if l <= 1:
+    if l != 2:
         return Message.REMOVE_COMMAND_USAGE
 
-    op = command[1]
+    request = command[1]
 
-    if op == "-p":
-        if l != 3:
-            wipe_screen = False
-            return Message.INVALID_OPERAND
-        try:
-            delete_pasta(command[2])
-        except Exception as e:
-            wipe_screen = False
-            return e
-        return view_all_pastas()
-    elif op == "-a":
-        if l != 4:
-            wipe_screen = False
-            return Message.INVALID_OPERAND
-        try:
-            delete_activity(command[2], command[3])
-        except Exception as e:
-            wipe_screen = False
-            return e
-        return view_pasta(command[2])
-    elif op == "-l":
-        if l != 5:
-            wipe_screen = False
-            return Message.INVALID_OPERAND
-        try:
-            delete_line_type(command[2], command[3], command[4])
-        except Exception as e:
-            wipe_screen = False
-            return e     
-        return view_activity(command[2], command[3])   
-    elif op == "-ani":
-        if l != 3:
-            wipe_screen = False
-            return Message.INVALID_OPERAND
-        try:
-            delete_animador(command[2])
-        except Exception as e:
-            wipe_screen = False
-            return e
-        return view_all_animadores()
-    elif op == '-all':
-        if l != 2:
-            wipe_screen = False
-            return Message.INVALID_OPERAND
-        pastas.clear()
-        animadores.clear()
-        return view_all_animadores() + view_all_pastas()
+    if curr_dir == DIR.GLOBAL:
+        delete_pasta(request)
+    elif curr_dir == DIR.PASTA:
+        delete_activity(curr_pasta, request)
+    elif curr_dir == DIR.ACTIVITY:
+        delete_line_type(curr_pasta, curr_activity, request)
     else:
-        wipe_screen = False
-        return Message.INVALID_OPERAND
+        pass # never gets here
 
 def get_path_pasta():
     split = path.split('/')
@@ -472,7 +395,7 @@ if __name__ == "__main__":
     
     global pastas
     global animadores
-    global wipe_screen
+    
     global path
     global curr_pasta
     global curr_activity
@@ -485,8 +408,6 @@ if __name__ == "__main__":
     curr_activity = None
     curr_line = None
 
-    wipe_screen = True
-    prev_user_info = ''
     user_info = ''
     # load data base
     try:
@@ -502,48 +423,38 @@ if __name__ == "__main__":
     while True:
         os.system('clear') # this is linux dependent!
         print(view())
-        if not wipe_screen:
-            print(prev_user_info)
-            wipe_screen = True
-        
         print(user_info)
-        if len(str(user_info)) > 0 and str(user_info)[0] != '#':
-            prev_user_info = user_info
         user_info = ''
-        
         
         raw = input(f'\n{path} > ')
         command = raw.split(' ')
 
         key_word = command[0]
 
-        if key_word == 'exit': # exit
-            break
-        elif key_word == 'view': # view some type of information
-            user_info = view(command)
-        elif key_word == 'set': # update some information
-            user_info = update(command)
-            save_db()
-        elif key_word == 'add':
-            user_info = add(command)
-            save_db()
-        elif key_word == "rm":
-            user_info = remove(command)
-            save_db()
-        elif key_word == "h":
-            user_info = Message.HELP
-        elif key_word == 'in':
-            try:
-                enter_directory(command)
-            except Exception as e:
-                user_info = e
-        elif key_word == 'out':
-            try:
-                exit_directory()
-            except Exception as e:
-                user_info = e
-        else:
-            user_info = Message.UNKNOWN_COMMAND
+        try:
+            if key_word == 'exit': # exit
+                break
+            elif key_word == 'view': # view some type of information
+                user_info = view(command)
+            elif key_word == 'set': # update some information
+                user_info = update(command)
+                save_db()
+            elif key_word == 'add':
+                add(command)
+                save_db()
+            elif key_word == "rm":
+                remove(command)
+                save_db()
+            elif key_word == "h":
+                user_info = Message.HELP
+            elif key_word == 'in':
+                    enter_directory(command)
+            elif key_word == 'out':
+                    exit_directory()
+            else:
+                user_info = Message.UNKNOWN_COMMAND
+        except (Exception, TypeError) as e:
+            user_info = e
 
     # save data base
     save_db()
