@@ -1,0 +1,12 @@
+path = '' or 'pasta/' or 'pasta/activity/' or 'pasta/activity/line/'
+
+for example, in path 'norte/':
+
+norte -> add mini-campo = add -a norte mini-campo
+norte -> in mini-campo = enter mini-campo
+norte/mini-campo -> add A 200 = add -l norte mini-campo A 200
+norte/mini-campo -> out
+norte/ -> list
+
+mini-campo
+...

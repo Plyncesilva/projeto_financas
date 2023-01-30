@@ -1,0 +1,4 @@
+Commands:
+    add -p "nome da pasta" "tipo da pasta"
+    add -a "nome da atividade" "nome da pasta a que pertence"
+    add -t "tipo de despesa" "valor orcamentado" "nome da pasta a que pertence" "nome da atividade a que pertence"
