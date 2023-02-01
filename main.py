@@ -4,7 +4,9 @@ import sys
 from messages import Message
 from animador import Animador
 from tipos import DIR
+from tipos import Sections
 import os
+import string
 
 # TODO
 # Melhorar eficiencia estrutural do codigo, muita coisa repetida diria
@@ -134,7 +136,7 @@ def view_all_animadores() -> str:
 def view_all_pastas():
     out = 'Pastas:\n\n'
     for p in pastas:
-        out += str(get_pasta(p)) + '\n'
+        out += '- ' + str(get_pasta(p).get_nome()) + '\n'
     return out
 
 # Add
@@ -159,16 +161,31 @@ def add_animador(name, NIB, nucleo):
 
 # Command logic controllers
 
+# hardcoded
+def view_sections():
+    out = ''
+    for s in Sections:
+        out += f'- {s.name}\n'
+    return out
+
 def view() -> str:
 
     if curr_dir == DIR.GLOBAL:
-        return view_all_pastas() + view_all_animadores()
+        return view_sections()
+    elif curr_dir == DIR.PASTAS:
+        return view_all_pastas()
+    elif curr_dir == DIR.ANIMADORES:
+        return view_all_animadores()
+    elif curr_dir == DIR.ANIMADOR:
+        return view_animador(curr_animador)
     elif curr_dir == DIR.PASTA:
         return view_pasta(curr_pasta)
     elif curr_dir == DIR.ACTIVITY:
         return view_activity(curr_pasta, curr_activity)
     elif curr_dir == DIR.LINE:
         return view_line(curr_pasta, curr_activity, curr_line)
+    elif curr_dir == DIR.STATISTICS:
+        return 'Statistics still on development phase!\n'
     else:
         pass # never gets here 
 
@@ -285,7 +302,7 @@ def add(command):
 
     request = command[1]
 
-    if curr_dir == DIR.GLOBAL:
+    if curr_dir == DIR.PASTAS:
         if l != 3:
             raise Exception(Message.ADD_COMMAND_USAGE)
         add_pasta(request, command[2])
@@ -297,25 +314,31 @@ def add(command):
         if l != 3:
             raise Exception(Message.ADD_COMMAND_USAGE)
         add_line_type(curr_pasta, curr_activity, request, command[2])
+    elif curr_dir == DIR.ANIMADORES:
+        if l != 4:
+            raise Exception(Message.ADD_COMMAND_USAGE)
+        add_animador(command[1], command[2], command[3])
     else:
-        pass # never gets here
+        raise Exception(Message.CANNOT_ADD_HERE)
 
 def remove(command):
     l = len(command)
 
     if l != 2:
-        return Message.REMOVE_COMMAND_USAGE
+        raise Exception(Message.REMOVE_COMMAND_USAGE)
 
     request = command[1]
 
-    if curr_dir == DIR.GLOBAL:
+    if curr_dir == DIR.PASTAS:
         delete_pasta(request)
     elif curr_dir == DIR.PASTA:
         delete_activity(curr_pasta, request)
     elif curr_dir == DIR.ACTIVITY:
         delete_line_type(curr_pasta, curr_activity, request)
+    elif curr_dir == DIR.ANIMADORES:
+        delete_animador(request)
     else:
-        pass # never gets here
+        raise Exception(Message.CANNOT_REMOVE_HERE)
 
 def get_path_pasta():
     split = path.split('/')
@@ -341,6 +364,8 @@ def enter_directory(command):
     global curr_pasta
     global curr_activity
     global curr_line
+    global curr_section
+    global curr_animador
 
     if len(command) != 2:
         raise Exception(Message.INVALID_OPERAND)
@@ -348,6 +373,11 @@ def enter_directory(command):
     request = command[1]
 
     if curr_dir == DIR.GLOBAL:
+        if request not in Sections._member_names_: # isto esta muito mau
+            raise Exception(Message.SECTION_NAME_NON_EXISTENT)
+        curr_section = request
+        curr_dir = DIR._member_map_[request.upper()]
+    elif curr_dir == DIR.PASTAS:
         if not pasta_exists(request):
             raise Exception(Message.PASTA_NON_EXISTENT)
         curr_pasta = request
@@ -362,8 +392,13 @@ def enter_directory(command):
             raise Exception(Message.LINE_TYPE_NON_EXISTENT)
         curr_line = request
         curr_dir = DIR.LINE    
-    else: 
-        pass # em teoria imporssivel chegar aqui
+    elif curr_dir == DIR.ANIMADORES:
+        if not animador_exists(request):
+            raise Exception(Message.ANIMADOR_NON_EXISTENT)
+        curr_animador = request
+        curr_dir = DIR.ANIMADOR
+    else:
+        raise Exception(Message.CANNOT_GO_ANY_FURTHER)
     path += '/' + request
 
 def exit_directory():
@@ -372,20 +407,35 @@ def exit_directory():
     global curr_pasta
     global curr_activity
     global curr_line
+    global curr_animador
+    global curr_section
+    
+    if len(command) != 1:
+        raise Exception(Message.INVALID_OPERAND)
 
-    if curr_dir == DIR.GLOBAL:
-        raise Exception(Message.CANNOT_EXIT_GLOBAL)    
+    if curr_dir == DIR.PASTAS:
+        curr_dir = DIR.GLOBAL
+        curr_section = None
+    elif curr_dir == DIR.ANIMADOR:
+        curr_dir = DIR.ANIMADORES
+        curr_animador = None
+    elif curr_dir == DIR.ANIMADORES:
+        curr_dir = DIR.GLOBAL
+        curr_section = None
     elif curr_dir == DIR.PASTA:
         curr_pasta = None
-        curr_dir = DIR.GLOBAL    
+        curr_dir = DIR.PASTAS    
     elif curr_dir == DIR.ACTIVITY:
         curr_activity = None
         curr_dir = DIR.PASTA    
     elif curr_dir == DIR.LINE:
         curr_line = None
         curr_dir = DIR.ACTIVITY
+    elif curr_dir == DIR.STATISTICS:
+        curr_dir = DIR.GLOBAL
+        curr_section = None
     else: 
-        pass # em teoria imporssivel chegar aqui
+        raise Exception(Message.CANNOT_EXIT_GLOBAL)    
     path = '/'.join(path.split('/')[:-1])
 
 
@@ -401,12 +451,16 @@ if __name__ == "__main__":
     global curr_activity
     global curr_line
     global curr_dir
+    global curr_animador
+    global curr_section
 
     path = 'global'
     curr_dir = DIR.GLOBAL
     curr_pasta = None
     curr_activity = None
     curr_line = None
+    curr_animador = None
+    curr_section = None
 
     user_info = ''
     # load data base

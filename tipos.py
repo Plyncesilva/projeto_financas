@@ -23,3 +23,12 @@ class DIR(enum.Enum):
     PASTA = 2
     ACTIVITY = 3
     LINE = 4
+    PASTAS = 5
+    ANIMADORES = 6
+    ANIMADOR = 7
+    STATISTICS = 8
+
+class Sections(enum.Enum):
+    Pastas = "Pastas"
+    Animadores = "Animadores"
+    Statistics = "Statistics"

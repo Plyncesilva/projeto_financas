@@ -36,6 +36,12 @@ class Message:
     INVALID_OPERAND: str = '#! Invalid command usage, type the command name for help.'
 
     CANNOT_EXIT_GLOBAL: str = '#! You cannot exit the global directory.'
+    CANNOT_GO_ANY_FURTHER: str = '#! There is no where else to go.'
+
+    SECTION_NAME_NON_EXISTENT: str = "#! Chosen \x1B[3msection_name \x1B[0mdoes not exist."
+
+    CANNOT_ADD_HERE: str = '#! You cannot add anything in here.'
+    CANNOT_REMOVE_HERE: str = '#! You cannot remove anything in here.'
 
     HELP: str = f"""
     Available commands:

@@ -6,7 +6,7 @@ class Animador:
 
     def __init__(self, name: str, NIB: str, nucleo: str) -> None:
         self.name = name
-        self.NIB = NIB
+        self.set_NIB(NIB)
         self.set_nucleo(nucleo)
 
     def get_name(self) -> str:
@@ -102,4 +102,4 @@ class Animador:
         if iban[:4] == 'PT50':
             return self.valid_nib(iban[4:])
         else:
-            raise ValueError("Código IBAN não suportado: %s" % iban[:4])
+            return False
