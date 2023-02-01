@@ -42,6 +42,7 @@ class Message:
 
     CANNOT_ADD_HERE: str = '#! You cannot add anything in here.'
     CANNOT_REMOVE_HERE: str = '#! You cannot remove anything in here.'
+    CANNOT_EDIT_HERE: str = '#! You cannot edit anything in here.'
 
     HELP: str = f"""
     Available commands:

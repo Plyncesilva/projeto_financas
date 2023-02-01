@@ -15,6 +15,9 @@ class Animador:
     def get_NIB(self) -> str:
         return self.NIB
 
+    def get_nucleo(self) -> str:
+        return self.nucleo
+
     def set_name(self, name: str) -> None:
         self.name = name
 

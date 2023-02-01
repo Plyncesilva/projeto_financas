@@ -8,13 +8,10 @@ from tipos import Sections
 import os
 import string
 
-# TODO
-# Melhorar eficiencia estrutural do codigo, muita coisa repetida diria
-# introduzir animadores features
+# TODO FOCUS ON FEATURES AND LESS UI DESIGN FROM NOW ON
 # Handle different pasta types
-# Ability to add line types?
 # Auto complete commands
-# Improve usability and CLI, less extensive commands, memorize current path
+# Ability to add line types?
 # Remove All animadores, pastas, all... (cuidado com isto, nao tem assim tanto interesse apagar tudo...)
 
 # Database management
@@ -189,110 +186,69 @@ def view() -> str:
     else:
         pass # never gets here 
 
+def clear():
+    os.system('clear') # this is linux dependent!
+
+def edit_pasta(pasta_name: str):
+    pasta = get_pasta(pasta_name)
+    clear()
+    pasta_name = input(f"> pasta_name({pasta.get_nome()}): ")
+    pasta_type = input(f"> pasta_type({pasta.get_tipo()}): ")
+    if pasta_type != '':
+        update_pasta_type(pasta.get_nome(), pasta_type)
+    if pasta_name != '':
+        update_pasta_name(pasta.get_nome(), pasta_name)
+
+def edit_activity(activity_name: str):
+    activity = get_pasta(curr_pasta).get_activity(activity_name)
+    clear()
+    activity_name = input(f"> activity_name({activity.get_activity_name()}): ")
+    if activity_name != '':
+        update_activity_name(activity.get_activity_name(), activity_name)
+
+def edit_line(line_type: str):
+    line = get_pasta(curr_pasta).get_activity(curr_activity).get_line_type(line_type)
+    clear()
+    line_type = input(f"> line_type({line.get_line_type()}): ")
+    line_budget = input(f"> line_budget({line.get_budget()}): ")
+    if line_budget != '':
+        update_line_budget(curr_pasta, curr_activity, line.get_line_type(), line_budget)
+    if line_type != '':
+        update_line_type(curr_pasta, curr_activity, line.get_line_type(), line_type)
+
+def edit_animador(name: str):
+    animador = get_animador(name)
+    clear()
+    new_name = input(f"> name({animador.get_name()}): ")
+    nib = input(f"> nib({animador.get_NIB()}): ")
+    nuc = input(f"> nucleo({animador.get_nucleo()}): ")
+    if nuc != '':
+        update_animador_nucleo(animador.get_name(), nuc)
+    if nib != '':
+        update_animador_nucleo(animador.get_name(), nib)
+    if new_name != '':
+        update_animador_name(animador.get_name(), new_name)
+
+
 def update(command) -> str:
 
-    # update pasta name: set -p pasta_name new_pasta_name
-    # update pasta type: set -pt pasta_name new_type
+    l = len(command)
 
-    # update activity name: set -a pasta_name activity_name new_activity_name
-
-    # update line type: set -l pasta_name activity_name line_type new_line_type
-    # update line budget: set -lb pasta_name activity_name line_type new_budget
-
-    # update animador name: set -ani name new_name
-    # update animador nibL set -nib name new_nib
-    # update animador nucleo: set -n name new_nucleo
-
-    
-
-    if len(command) <= 1:
+    if l != 2:
         return Message.UPDATE_COMMAND_USAGE
 
-    op = command[1]
+    request = command[1]
 
-    if op == '-p':
-        if len(command) != 4:
-            
-            return Message.INVALID_OPERAND
-        try:
-            update_pasta_name(command[2], command[3])
-        except Exception as e:
-            
-            return e
-        return view_pasta(command[3])
-    elif op == '-pt':
-        if len(command) != 4:
-            
-            return Message.INVALID_OPERAND
-        try:
-            update_pasta_type(command[2], command[3])
-        except Exception as e:
-            
-            return e
-        return view_pasta(command[2])
-    elif op == '-a':
-        if len(command) != 5:
-            
-            return Message.INVALID_OPERAND
-        try:
-            update_activity_name(command[2], command[3], command[4])
-        except Exception as e:
-            
-            return e
-        return view_pasta(command[2])
-    elif op == '-l':
-        if len(command) != 6:
-            
-            return Message.INVALID_OPERAND
-        try:
-            update_line_type(command[2], command[3], command[4], command[5])
-        except Exception as e:
-            
-            return e
-        return view_pasta(command[2])
-    elif op == '-lb':
-        if len(command) != 6:
-            
-            return Message.INVALID_OPERAND
-        try:
-            update_line_budget(command[2], command[3], command[4], command[5])
-        except Exception as e:
-            
-            return e
-        return view_pasta(command[2])
-    elif op == '-ani':
-        if len(command) != 4:
-            
-            return Message.INVALID_OPERAND
-        try:
-            update_animador_name(command[2], command[3])
-        except Exception as e:
-            
-            return e
-        return view_animador(command[2])
-    elif op == '-nib':
-        if len(command) != 4:
-            
-            return Message.INVALID_OPERAND
-        try:
-            update_animador_nib(command[2], command[3])
-        except Exception as e:
-            
-            return e
-        return view_animador(command[2])
-    elif op == '-nuc':
-        if len(command) != 4:
-            
-            return Message.INVALID_OPERAND
-        try:
-            update_animador_nucleo(command[2], command[3])
-        except Exception as e:
-            
-            return e
-        return view_animador(command[2])
+    if curr_dir == DIR.PASTAS:
+        edit_pasta(request)
+    elif curr_dir == DIR.PASTA:
+        edit_activity(request)
+    elif curr_dir == DIR.ACTIVITY:
+        edit_line(request)
+    elif curr_dir == DIR.ANIMADORES:
+        edit_animador(request)
     else:
-        
-        return Message.INVALID_OPERAND
+        raise Exception(Message.CANNOT_EDIT_HERE)
         
 def add(command):
     l = len(command)
@@ -475,10 +431,11 @@ if __name__ == "__main__":
 
     # interactive menu
     while True:
-        os.system('clear') # this is linux dependent!
+        clear()
         print(view())
-        print(user_info)
-        user_info = ''
+        if user_info != '':
+            print(user_info)
+            user_info = ''
         
         raw = input(f'\n{path} > ')
         command = raw.split(' ')
@@ -488,10 +445,8 @@ if __name__ == "__main__":
         try:
             if key_word == 'exit': # exit
                 break
-            elif key_word == 'view': # view some type of information
-                user_info = view(command)
-            elif key_word == 'set': # update some information
-                user_info = update(command)
+            elif key_word == 'edit': # update some information
+                update(command)
                 save_db()
             elif key_word == 'add':
                 add(command)
@@ -502,9 +457,9 @@ if __name__ == "__main__":
             elif key_word == "h":
                 user_info = Message.HELP
             elif key_word == 'in':
-                    enter_directory(command)
+                enter_directory(command)
             elif key_word == 'out':
-                    exit_directory()
+                exit_directory()
             else:
                 user_info = Message.UNKNOWN_COMMAND
         except (Exception, TypeError) as e:
