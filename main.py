@@ -7,10 +7,11 @@ from tipos import DIR
 from tipos import Sections
 import os
 import string
+from completer import MyCompleter
+import readline
 
 # TODO FOCUS ON FEATURES AND LESS UI DESIGN FROM NOW ON
 # Handle different pasta types
-# Auto complete commands
 # Ability to add line types?
 # Remove All animadores, pastas, all... (cuidado com isto, nao tem assim tanto interesse apagar tudo...)
 
@@ -165,19 +166,28 @@ def view_sections():
         out += f'- {s.name}\n'
     return out
 
+def set_completer(contents):
+    readline.set_completer(MyCompleter(contents + commands).complete)
+    readline.parse_and_bind('tab: complete')
+
 def view() -> str:
 
     if curr_dir == DIR.GLOBAL:
+        set_completer(Sections._member_names_)
         return view_sections()
     elif curr_dir == DIR.PASTAS:
+        set_completer(list(pastas.keys()))
         return view_all_pastas()
     elif curr_dir == DIR.ANIMADORES:
+        set_completer(list(animadores.keys()))
         return view_all_animadores()
     elif curr_dir == DIR.ANIMADOR:
         return view_animador(curr_animador)
     elif curr_dir == DIR.PASTA:
+        set_completer(list(get_pasta(curr_pasta).get_activities().keys()))
         return view_pasta(curr_pasta)
     elif curr_dir == DIR.ACTIVITY:
+        set_completer(list(get_pasta(curr_pasta).get_activity(curr_activity).get_lines().keys()))
         return view_activity(curr_pasta, curr_activity)
     elif curr_dir == DIR.LINE:
         return view_line(curr_pasta, curr_activity, curr_line)
@@ -409,7 +419,9 @@ if __name__ == "__main__":
     global curr_dir
     global curr_animador
     global curr_section
+    global commands
 
+    commands = ["in", "out", "exit", "edit"]
     path = 'global'
     curr_dir = DIR.GLOBAL
     curr_pasta = None
@@ -428,7 +440,7 @@ if __name__ == "__main__":
     except:
         print(Message.DATABASE_ERROR_LOADING)
         exit()
-
+    
     # interactive menu
     while True:
         clear()
