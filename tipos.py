@@ -7,11 +7,7 @@ class Tipos_de_Despesa(enum.Enum):
     E = 4 # espaco
     O = 5 # outros
     I = 6 # inscricoes
-
-class Tipos_de_Pasta(enum.Enum):
-    D = 1 # despesas
-    R = 2 # receitas
-    DR = 3 # despesas e receitas
+    P = 7 # pagamento de servicos
 
 class Nucleos(enum.Enum):
     N = 1

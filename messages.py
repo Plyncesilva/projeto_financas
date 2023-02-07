@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from tipos import Tipos_de_Despesa
-from tipos import Tipos_de_Pasta
 from tipos import Nucleos
 
 @dataclass
@@ -15,8 +14,6 @@ class Message:
 
     INVALID_LINE_TYPE: str = f'Invalid {italic("line_type")}, should be one of {Tipos_de_Despesa._member_names_}'
     INVALID_BUDGET: str = f'#! Wrong value type for {italic("budget")}. Should be numerical.'
-
-    INVALID_PASTA_TYPE: str = f'Invalid {italic("pasta_type")}, should be one of {Tipos_de_Pasta._member_names_}'
 
     PASTA_NON_EXISTENT: str = "#! Chosen \x1B[3mpasta_name \x1B[0mdoes not exist."
     PASTA_ALREADY_EXIST: str = "#! Chosen \x1B[3mpasta_name \x1B[0malready exists."
@@ -66,7 +63,6 @@ class Message:
     Usage: add [-p][-a][-l][-ani] args
     
         [-p] \x1B[3mpasta_name pasta_type\x1B[0m
-            - add a \x1B[3mpasta \x1B[0mwith one of the \x1B[3mpasta_type \x1B[0min {str(Tipos_de_Pasta._member_names_)}.
         
         [-a] \x1B[3mpasta_name \x1B[3mactivity_name\x1B[0m
             - add a new activity.

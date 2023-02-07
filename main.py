@@ -6,14 +6,14 @@ from animador import Animador
 from tipos import DIR
 from tipos import Sections
 import os
-import string
 from completer import MyCompleter
 import readline
 
 # TODO FOCUS ON FEATURES AND LESS UI DESIGN FROM NOW ON
-# Handle different pasta types
+# Line names should be inputed by user
+# Backup data base service
+# resolver mensagens de uso e de erro
 # Ability to add line types?
-# Remove All animadores, pastas, all... (cuidado com isto, nao tem assim tanto interesse apagar tudo...)
 
 # Database management
 
@@ -75,6 +75,18 @@ def delete_animador(name):
         raise Exception(Message.ANIMADOR_NON_EXISTENT)
     del(animadores[name])
 
+def delete_all_lines(pasta_name, activity_name):
+    get_pasta(pasta_name).get_activity(activity_name).delete_all_lines()
+
+def delete_all_activities(pasta_name):
+    get_pasta(pasta_name).delete_all_activities()
+
+def delete_all_pastas():
+    pastas.clear()
+
+def delete_all_animadores():
+    animadores.clear()
+
 # Update
 
 def update_pasta_name(pasta_name, new_pasta_name):
@@ -84,9 +96,6 @@ def update_pasta_name(pasta_name, new_pasta_name):
     pasta.set_name(new_pasta_name)
     pastas[new_pasta_name] = pasta
     delete_pasta(pasta_name) 
-
-def update_pasta_type(pasta_name, new_pasta_type):
-    get_pasta(pasta_name).set_type(new_pasta_type)
 
 def update_activity_name(pasta_name, activity_name, new_activity_name):
     get_pasta(pasta_name).set_activity_name(activity_name, new_activity_name)
@@ -133,17 +142,18 @@ def view_all_animadores() -> str:
 
 def view_all_pastas():
     out = 'Pastas:\n\n'
+    total = 0
     for p in pastas:
         out += '- ' + str(get_pasta(p).get_nome()) + '\n'
     return out
 
 # Add
 
-def add_pasta(pasta_name, pasta_type) -> None:
+def add_pasta(pasta_name) -> None:
     if pasta_exists(pasta_name):
         raise Exception(Message.PASTA_ALREADY_EXIST)
     else:
-        pastas[pasta_name] = Pasta(pasta_name, pasta_type)
+        pastas[pasta_name] = Pasta(pasta_name)
 
 def add_activity(pasta_name, activity_name) -> None:
     get_pasta(pasta_name).add_activity(activity_name)
@@ -192,8 +202,10 @@ def view() -> str:
     elif curr_dir == DIR.LINE:
         return view_line(curr_pasta, curr_activity, curr_line)
     elif curr_dir == DIR.STATISTICS:
+        set_completer([])
         return 'Statistics still on development phase!\n'
     else:
+        set_completer([])
         pass # never gets here 
 
 def clear():
@@ -203,9 +215,6 @@ def edit_pasta(pasta_name: str):
     pasta = get_pasta(pasta_name)
     clear()
     pasta_name = input(f"> pasta_name({pasta.get_nome()}): ")
-    pasta_type = input(f"> pasta_type({pasta.get_tipo()}): ")
-    if pasta_type != '':
-        update_pasta_type(pasta.get_nome(), pasta_type)
     if pasta_name != '':
         update_pasta_name(pasta.get_nome(), pasta_name)
 
@@ -214,7 +223,7 @@ def edit_activity(activity_name: str):
     clear()
     activity_name = input(f"> activity_name({activity.get_activity_name()}): ")
     if activity_name != '':
-        update_activity_name(activity.get_activity_name(), activity_name)
+        update_activity_name(curr_pasta, activity.get_activity_name(), activity_name)
 
 def edit_line(line_type: str):
     line = get_pasta(curr_pasta).get_activity(curr_activity).get_line_type(line_type)
@@ -269,9 +278,9 @@ def add(command):
     request = command[1]
 
     if curr_dir == DIR.PASTAS:
-        if l != 3:
+        if l != 2:
             raise Exception(Message.ADD_COMMAND_USAGE)
-        add_pasta(request, command[2])
+        add_pasta(request)
     elif curr_dir == DIR.PASTA:
         if l != 2:
             raise Exception(Message.ADD_COMMAND_USAGE)
@@ -296,13 +305,25 @@ def remove(command):
     request = command[1]
 
     if curr_dir == DIR.PASTAS:
-        delete_pasta(request)
+        if request == 'ALL':
+            delete_all_pastas()
+        else:
+            delete_pasta(request)
     elif curr_dir == DIR.PASTA:
-        delete_activity(curr_pasta, request)
+        if request == 'ALL':
+            delete_all_activities(curr_pasta)
+        else:
+            delete_activity(curr_pasta, request)
     elif curr_dir == DIR.ACTIVITY:
-        delete_line_type(curr_pasta, curr_activity, request)
+        if request == 'ALL':
+            delete_all_lines(curr_pasta, curr_activity)
+        else:
+            delete_line_type(curr_pasta, curr_activity, request)
     elif curr_dir == DIR.ANIMADORES:
-        delete_animador(request)
+        if request == 'ALL':
+            delete_all_animadores()
+        else:
+            delete_animador(request)
     else:
         raise Exception(Message.CANNOT_REMOVE_HERE)
 
