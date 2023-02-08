@@ -8,20 +8,24 @@ from tipos import Sections
 import os
 from completer import MyCompleter
 import readline
+import datetime
 
 # TODO FOCUS ON FEATURES AND LESS UI DESIGN FROM NOW ON
-# Line names should be inputed by user
-# Backup data base service
+
+# Allow arbitrary names and line names and activity names quoted to use spaces!
+
 # resolver mensagens de uso e de erro
-# Ability to add line types?
 
 # Database management
 
+DATA_BASE_PATH = '/home/mrrobot/projeto_financas/database/'
+BACKUP_PATH = '/home/mrrobot/projeto_financas/backups/'
+
 def save_db() -> None:
     try:
-        with open('pastas.dat', 'wb') as f:
+        with open(f'{DATA_BASE_PATH}pastas.dat', 'wb') as f:
             pickle.dump(pastas, f, pickle.HIGHEST_PROTOCOL)
-        with open('animadores.dat', 'wb') as f:
+        with open(f'{DATA_BASE_PATH}animadores.dat', 'wb') as f:
             pickle.dump(animadores, f, pickle.HIGHEST_PROTOCOL)
     except:
         print(Message.DATABASE_ERROR_SAVING)
@@ -425,6 +429,19 @@ def exit_directory():
         raise Exception(Message.CANNOT_EXIT_GLOBAL)    
     path = '/'.join(path.split('/')[:-1])
 
+def create_backup():
+    now = datetime.datetime.now()
+    backup_pastas = f'{now.year}-{now.month}-{now.day} {now.hour}:{now.minute}:{now.second} pastas.dat'
+    backup_animadores = f'{now.year}-{now.month}-{now.day} {now.hour}:{now.minute}:{now.second} animadores.dat'
+
+    try:
+        with open(f'{BACKUP_PATH}{backup_pastas}', 'wb') as f:
+            pickle.dump(pastas, f, pickle.HIGHEST_PROTOCOL)
+        with open(f'{BACKUP_PATH}{backup_animadores}', 'wb') as f:
+            pickle.dump(animadores, f, pickle.HIGHEST_PROTOCOL)
+    except:
+        print(Message.DATABASE_ERROR_SAVING)
+        exit()
 
 # Main
 
@@ -454,9 +471,9 @@ if __name__ == "__main__":
     user_info = ''
     # load data base
     try:
-        with open('pastas.dat', 'rb') as f:
+        with open(f'{DATA_BASE_PATH}pastas.dat', 'rb') as f:
             pastas = pickle.load(f)
-        with open('animadores.dat', 'rb') as f:
+        with open(f'{DATA_BASE_PATH}animadores.dat', 'rb') as f:
             animadores = pickle.load(f)
     except:
         print(Message.DATABASE_ERROR_LOADING)
@@ -477,6 +494,7 @@ if __name__ == "__main__":
 
         try:
             if key_word == 'exit': # exit
+                create_backup()
                 break
             elif key_word == 'edit': # update some information
                 update(command)
