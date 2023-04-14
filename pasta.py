@@ -1,4 +1,3 @@
-import tipos
 from messages import Message
 from activity import Activity
 

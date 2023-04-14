@@ -1,6 +1,5 @@
 import pickle
 from pasta import Pasta
-import sys
 from messages import Message
 from animador import Animador
 from tipos import DIR
